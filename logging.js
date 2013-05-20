@@ -266,7 +266,6 @@ function loggerProp(name)
 } // end loggerProp
 
 loggerProp('level');
-loggerProp('format');
 
 Object.defineProperty(Logger.prototype, 'handlers', {
     'get': function getHandlers()
