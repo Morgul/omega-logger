@@ -141,7 +141,9 @@ logging.nextLevelUp = function nextLevelUp(level)
  */
 function Logger(name, config)
 {
-    this.name = name;
+    // Read-only 'name' property
+    Object.defineProperty(this, 'name', {value: name, configurable: false, enumerable: true, writable: false});
+
     this.propagate = true;
 
     for(var key in config)
