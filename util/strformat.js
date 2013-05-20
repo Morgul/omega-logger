@@ -4,11 +4,7 @@
 // @module strformat
 // --------------------------------------------------------------------------------------------------------------------
 
-var XRegExp = require('xregexp').XRegExp;
-
-// --------------------------------------------------------------------------------------------------------------------
-
-var formatPattern = XRegExp("\\{(?<varname>[a-zA-Z0-9_]*)\\}", 'g');
+var formatPattern = /\{([a-zA-Z0-9_]*)\}/g;
 
 function format(formatString, context /*, positional args... */)
 {
@@ -26,7 +22,7 @@ function format(formatString, context /*, positional args... */)
         } // end if
     } // end formatReplacement
 
-    return XRegExp.replace(formatString, formatPattern, formatReplacement);
+    return formatString.replace(formatPattern, formatReplacement);
 } // end format
 
 //----------------------------------------------------------------------------------------------------------------------
