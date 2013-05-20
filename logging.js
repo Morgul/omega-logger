@@ -7,28 +7,20 @@
 var path = require('path');
 var util = require('util');
 
-var strFormat = require('./util/strformat').format;
-var Context = require('./lib/context.js');
 // --------------------------------------------------------------------------------------------------------------------
 
 var logging = {
-    'levels': [
+    levels: [
         'TRACE',
         'DEBUG',
         'INFO',
         'WARN',
         'ERROR',
         'CRITICAL'
-        ],
-    'levelColors': {
-        'TRACE': '1;30',
-        'DEBUG': '37',
-        'INFO': '32',
-        'WARN': '33',
-        'ERROR': '31',
-        'CRITICAL': '1;31'
-        }
+        ]
 };
+
+module.exports = logging;
 
 var mainDir = '';
 try
@@ -36,6 +28,17 @@ try
     mainDir = path.dirname(require.main.filename);
 }
 catch(err) { } // Ignore exceptions. (which happen if you're requiring this from an interactive session)
+
+// --------------------------------------------------------------------------------------------------------------------
+
+var Context = require('./lib/context').Context;
+
+var ConsoleHandler = require('./lib/handlers/console').ConsoleHandler;
+
+logging.handlers = {
+    console: ConsoleHandler,
+    file: require('./lib/handlers/file').FileHandler
+};
 
 // --------------------------------------------------------------------------------------------------------------------
 
@@ -68,7 +71,7 @@ logging.loggerFor = function loggerFor(obj)
 
     // If we weren't able to determine a logger name, use the root logger instead.
     return logging.getLogger(loggerName || 'root');
-}; // end loggerForModule
+}; // end loggerFor
 
 /**
  * Get a Logger by name.
@@ -87,16 +90,17 @@ logging.getLogger = function getLogger(name)
     {
         // This logger doesn't exist; make a new one.
         logger = new Logger(name);
+        loggers[name] = logger;
 
         // Insert this logger's name into loggerNamesSorted.
-        loggerNamesSorted.every(
-                function eachLoggerName(ancestorName, index)
+        var nameSortsAfterAll = loggerNamesSorted.every(
+                function eachLoggerName(loggerName, index)
                 {
-                    if(name.length > ancestorLogger.length)
+                    if(name.length > loggerName.length)
                     {
                         // Insert new loggers before the first logger that has a longer name, so we don't have to
                         // re-sort the whole list. (yay insertion sort!)
-                        loggerNamesSorted.splice(index, 0, logger);
+                        loggerNamesSorted.splice(index, 0, name);
 
                         // Break out of our loop, since no subsequent logger could be our ancestor.
                         return false;
@@ -104,10 +108,25 @@ logging.getLogger = function getLogger(name)
 
                     return true;  // Keep looping over loggers.
                 }); // end every
+
+        if(nameSortsAfterAll)
+        {
+            loggerNamesSorted.push(name);
+        } // end if
     } // end if
 
     return logger;
 }; // end getLogger
+
+logging.nextLevelDown = function nextLevelDown(level)
+{
+    return logging.levels[logging.levels.indexOf(level) - 1];
+}; // end nextLevelDown
+
+logging.nextLevelUp = function nextLevelUp(level)
+{
+    return logging.levels[logging.levels.indexOf(level) + 1];
+}; // end nextLevelUp
 
 // --------------------------------------------------------------------------------------------------------------------
 
@@ -123,6 +142,7 @@ logging.getLogger = function getLogger(name)
 function Logger(name, config)
 {
     this.name = name;
+    this.propagate = true;
 
     for(var key in config)
     {
@@ -141,11 +161,28 @@ function Logger(name, config)
  */
 Logger.prototype.log = function log(level, message)
 {
-    if(logging.levels.indexOf(level) >= logging.levels.indexOf(this.level))
+    if(logging.levels.indexOf(level.toUpperCase()) >= logging.levels.indexOf(this.level))
     {
         var context = new Context(this.name, level, message, Array.prototype.slice.call(arguments, 2));
 
-        console.log(strFormat(this.format, context));
+        this.handlers.forEach(function eachHandler(handler)
+        {
+            if(handler)
+            {
+                try
+                {
+                    handler.log(context);
+                }
+                catch(exc)
+                {
+                    console.error("ERROR: Exception while logging to %j handler %s: %s",
+                            handler.constructor.name,
+                            util.inspect(handler),
+                            exc.stack || util.inspect(exc)
+                            );
+                } // end try
+            } // end if
+        }); // end eachHandler
     } // end if
 }; // end log
 
@@ -169,6 +206,36 @@ function initLogLevel(level)
 
 logging.levels.forEach(initLogLevel);
 
+function walkHierarchy(targetLoggerName, iterator, callback)
+{
+    var partialMatchEncountered = false;
+
+    loggerNamesSorted.every(
+            function eachLoggerName(loggerName, index)
+            {
+                if((targetLoggerName == loggerName || startsWith(targetLoggerName, loggerName + '.')) &&
+                        loggers[loggerName])
+                {
+                    // If the current logger is an ancestor of the given name, call the iterator function.
+                    iterator(loggers[loggerName], loggerName);
+                    partialMatchEncountered = true;
+                }
+                else if(partialMatchEncountered)
+                {
+                    // We've already encountered at least one partial match, and we're no longer matching; since the
+                    // list is sorted, we can stop iterating now.
+                    return false;
+                } // end if
+
+                return true;  // Keep looping over loggers.
+            }); // end every
+
+    if(callback)
+    {
+        callback();
+    } // end if
+} // end walkHierarchy
+
 // Define Logger properties which inherit their values from ancestor Loggers.
 function loggerProp(name)
 {
@@ -176,28 +243,14 @@ function loggerProp(name)
 
     function getter()
     {
-        var value = this[privateVarName];
-
-        if(!value)
-        {
-            loggerNamesSorted.every(
-                    function eachLoggerName(ancestorName, index)
-                    {
-                        if(startsWith(name, ancestorLogger + '.') && loggers[ancestorName])
-                        {
-                            // If the current logger is an ancestor of this and it has a value with this name, override
-                            // value with the ancestor's private variable.
-                            value = loggers[ancestorName][privateVarName] || value;
-                        } // end if
-
-                        return true;  // Keep looping over loggers.
-                    }); // end every
-
-            if(!value)
-            {
-                value = logging.root[name];
-            } // end if
-        } // end if
+        var value = logging.root[privateVarName];
+        walkHierarchy(this.name,
+                function eachLogger(logger)
+                {
+                    // If the current logger is an ancestor of this and it has a value with this name, override
+                    // value with the ancestor's private variable.
+                    value = logger[privateVarName] || value;
+                });
 
         return value;
     } // end getter
@@ -215,10 +268,31 @@ function loggerProp(name)
 loggerProp('level');
 loggerProp('format');
 
-// --------------------------------------------------------------------------------------------------------------------
+Object.defineProperty(Logger.prototype, 'handlers', {
+    'get': function getHandlers()
+    {
+        var handlers = logging.root.__handlers;
+        walkHierarchy(this.name,
+                function eachLogger(logger)
+                {
+                    if(!logger.propagate)
+                    {
+                        // This logger is set to not propagate any messages to its ancestors; clear the handlers list.
+                        handlers = [];
+                    } // end if
 
-var loggers = {};
-var loggerNamesSorted = [];  // Logger names, sorted by ascending length.
+                    handlers = handlers.concat(logger.__handlers || []);
+                });
+
+        return handlers;
+    }, // end getHandlers
+    'set': function setHandlers(value)
+    {
+        this.__handlers = value;
+    } // end setHandlers
+});
+
+// --------------------------------------------------------------------------------------------------------------------
 
 function startsWith(value, prefix)
 {
@@ -227,13 +301,14 @@ function startsWith(value, prefix)
 
 // --------------------------------------------------------------------------------------------------------------------
 
+var loggers = {};
+var loggerNamesSorted = ['root'];  // Logger names, sorted by ascending length.
+
 // Create root logger.
 logging.root = new Logger('root',
         {
-            'level': 'INFO',
-            'format': '\033[90m{datetime}\033[m \033[1;30m[\033[{levelColor}m{level}\033[1;30m]\033[0;1m {logger}:\033[m {message}'
+            propagate: false,
+            handlers: [
+                new ConsoleHandler()
+            ]
         });
-
-// --------------------------------------------------------------------------------------------------------------------
-
-module.exports = logging;
