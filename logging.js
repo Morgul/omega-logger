@@ -7,7 +7,7 @@
 var path = require('path');
 var util = require('util');
 
-var strFormat = require('../../util/strformat').format;
+var strFormat = require('./util/strformat').format;
 
 // --------------------------------------------------------------------------------------------------------------------
 
