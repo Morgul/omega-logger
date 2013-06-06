@@ -128,7 +128,7 @@ logging.nextLevelDown = function nextLevelDown(level)
 
 logging.nextLevelUp = function nextLevelUp(level)
 {
-    return logging.levels[logging.levels.indexOf(level) + 1];
+    return logging.levels[logging.levels.indexOf(level) + 1] || logging.levels[logging.levels.length - 1];
 }; // end nextLevelUp
 
 // --------------------------------------------------------------------------------------------------------------------
