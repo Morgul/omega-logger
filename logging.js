@@ -35,6 +35,7 @@ catch(err) { } // Ignore exceptions. (which happen if you're requiring this from
 // --------------------------------------------------------------------------------------------------------------------
 
 var Context = require('./lib/context').Context;
+var Dumper = require('./lib/dumper').Dumper;
 
 var ConsoleHandler = require('./lib/handlers/console').ConsoleHandler;
 
@@ -193,8 +194,7 @@ Logger.prototype.log = function log(level, message)
 
 Logger.prototype.dump = function dump(object, levels)
 {
-    levels = levels || 2;
-    return util.inspect(object, false, levels, true);
+    return new Dumper(object, levels);
 }; // end dump
 
 // Create Logger methods for each defined log level.
