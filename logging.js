@@ -21,9 +21,9 @@ var logging = {
         'CRITICAL'
         ],
     strFormat: strFormat,
-    dump: function dump(object, levels)
+    dump: function dump(object, depth)
     {
-        return new Dumper(object, levels);
+        return new Dumper(object, depth);
     } // end dump
 };
 
