@@ -20,7 +20,11 @@ var logging = {
         'ERROR',
         'CRITICAL'
         ],
-    strFormat: strFormat
+    strFormat: strFormat,
+    dump: function dump(object, levels)
+    {
+        return new Dumper(object, levels);
+    } // end dump
 };
 
 module.exports = logging;
@@ -192,10 +196,7 @@ Logger.prototype.log = function log(level, message)
     } // end if
 }; // end log
 
-Logger.prototype.dump = function dump(object, levels)
-{
-    return new Dumper(object, levels);
-}; // end dump
+Logger.prototype.dump = logging.dump;
 
 // Create Logger methods for each defined log level.
 function initLogLevel(level)
