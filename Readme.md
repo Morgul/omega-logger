@@ -50,6 +50,10 @@ var logging = require('omega-logger');
 logging.root.level = 'DEBUG';
 ```
 
+Note that this does _not_ change the logging level of any of the handlers; instead, you would have to configure the
+handler directly. (for instance, if you want to change what levels of messages are printed to the console, you would
+need to set the level of the ConsoleHandler; see below)
+
 See the [`Logger`](#logger) documentation below for more information about the properties and methods available.
 
 
@@ -81,7 +85,12 @@ logging.root.handlers = [
 ```
 
 **Note:** The `console` handler defaults to only displaying messages at the `INFO` level or above; other handlers
-default to logging messages at any level.
+default to logging messages at any level. If you wish to change the level of messages printed to the console, you can
+simply change the default `console` handler's level directly:
+
+```javascript
+logging.root.handlers[0].level = 'DEBUG';
+```
 
 Each logger can have its own collection of handlers, though typically only the `root` logger has any configured. The
 `propagate` property on `Logger` instances controls whether or not messages get propagated to ancestor loggers'
