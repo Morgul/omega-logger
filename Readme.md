@@ -158,9 +158,10 @@ logger.log(level, message, ...);
 
 ...where `level` is the level corresponding to the log method's name.
 
-#### `logger.log(message, ...)`
-The main implementation method of logging. If any arguments are passed after the message, they are provided to
-`util.format(message)` as additional arguments.
+#### `logger.log(level, message, ...)`
+The main implementation method of logging. If any arguments are passed after the message, they are passed to
+`util.format(message)` as additional arguments. Then, the given message and level are passed on to any configured
+handlers on the given logger, and finally to the parent logger, if `propagate` is true.
 
 #### `logger.dump(object[, depth])`
 Render a dump of the given object. An alias of `require('omega-logger').dump`.
