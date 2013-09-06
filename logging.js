@@ -24,7 +24,8 @@ var logging = {
     dump: function dump(object, depth)
     {
         return new Dumper(object, depth);
-    } // end dump
+    }, // end dump
+    handlers: {}
 };
 
 module.exports = logging;
@@ -41,12 +42,9 @@ catch(err) { } // Ignore exceptions. (which happen if you're requiring this from
 var Context = require('./lib/context').Context;
 var Dumper = require('./lib/dumper').Dumper;
 
+// Load all included handlers.
 var ConsoleHandler = require('./lib/handlers/console').ConsoleHandler;
-
-logging.handlers = {
-    console: ConsoleHandler,
-    file: require('./lib/handlers/file').FileHandler
-};
+require('./lib/handlers/file');
 
 // --------------------------------------------------------------------------------------------------------------------
 
