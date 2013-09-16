@@ -50,7 +50,7 @@ require('./lib/handlers/file');
 
 logging.log = function log(level, message)
 {
-    var logger = logging.loggerForModule();
+    var logger = logging.getLogger('root');
     logger.log.apply(logger, arguments);
 }; // end log
 
