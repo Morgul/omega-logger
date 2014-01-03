@@ -307,11 +307,12 @@ function startsWith(value, prefix)
 var loggers = {};
 var loggerNamesSorted = ['root'];  // Logger names, sorted by ascending length.
 
+// Create default console log handler.
+logging.defaultConsoleHandler = new ConsoleHandler();
+
 // Create root logger.
 logging.root = new Logger('root',
         {
             propagate: false,
-            handlers: [
-                new ConsoleHandler()
-            ]
+            handlers: [logging.defaultConsoleHandler]
         });
