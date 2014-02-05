@@ -39,7 +39,7 @@ var Dumper = require('./lib/dumper').Dumper;
 var Logger = require('./lib/logger').Logger;
 
 // Load all included handlers.
-var ConsoleHandler = require('./lib/handlers/console').ConsoleHandler;
+require('./lib/handlers/console');
 require('./lib/handlers/file');
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -135,6 +135,7 @@ logging.nextLevelUp = function nextLevelUp(level)
 Logger.loggerNamesSorted = ['root'];  // Logger names, sorted by ascending length.
 
 // Create default console log handler.
+var ConsoleHandler = logging.handlers.console;
 logging.defaultConsoleHandler = new ConsoleHandler();
 
 // Create root logger.
