@@ -11,7 +11,7 @@ var strFormat = require('./util/strformat').format;
 
 // --------------------------------------------------------------------------------------------------------------------
 
-var logging = {
+var logging = module.exports = {
     levels: [
         'TRACE',
         'DEBUG',
@@ -25,10 +25,9 @@ var logging = {
     {
         return new Dumper(object, depth);
     }, // end dump
-    handlers: {}
+    handlers: {},
+    namedLoggers: {}
 };
-
-module.exports = logging;
 
 var mainDir = '';
 try
@@ -91,12 +90,12 @@ logging.getLogger = function getLogger(name)
         return logging.root;
     } // end if
 
-    var logger = loggers[name];
+    var logger = logging.namedLoggers[name];
     if(!logger)
     {
         // This logger doesn't exist; make a new one.
         logger = new Logger(name);
-        loggers[name] = logger;
+        logging.namedLoggers[name] = logger;
 
         // Insert this logger's name into loggerNamesSorted.
         var nameSortsAfterAll = loggerNamesSorted.every(
@@ -218,16 +217,16 @@ function walkHierarchy(targetLoggerName, iterator, callback)
             function eachLoggerName(loggerName, index)
             {
                 if((targetLoggerName == loggerName || startsWith(targetLoggerName, loggerName + '.')) &&
-                        loggers[loggerName])
+                        logging.namedLoggers[loggerName])
                 {
                     // If the current logger is an ancestor of the given name, call the iterator function.
-                    iterator(loggers[loggerName], loggerName);
+                    iterator(logging.namedLoggers[loggerName], loggerName);
                     partialMatchEncountered = true;
                 }
                 else if(partialMatchEncountered)
                 {
-                    // We've already encountered at least one partial match, and we're no longer matching; since the
-                    // list is sorted, we can stop iterating now.
+                    // We've already encountered at least one partial match, but the current name doesn't match; since
+                    // the list is sorted, we can stop iterating now.
                     return false;
                 } // end if
 
@@ -304,7 +303,6 @@ function startsWith(value, prefix)
 
 // --------------------------------------------------------------------------------------------------------------------
 
-var loggers = {};
 var loggerNamesSorted = ['root'];  // Logger names, sorted by ascending length.
 
 // Create default console log handler.
