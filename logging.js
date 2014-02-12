@@ -5,6 +5,7 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 var path = require('path');
+var util = require('util');
 
 // --------------------------------------------------------------------------------------------------------------------
 
@@ -119,6 +120,28 @@ logging.getLogger = function getLogger(name)
 
     return logger;
 }; // end getLogger
+
+logging.getLevel = function getLevel(level)
+{
+    if(typeof level != 'string')
+    {
+        level = level.toString();
+    } // end if
+    level = level;
+
+    var idx = logging.levels.indexOf(level);
+    if(idx < 0)
+    {
+        idx = logging.levels.indexOf(level.toUpperCase());
+        if(idx < 0)
+        {
+            throw new Error(util.format("Unrecognized log level %j!\nAvailable levels: %s",
+                level, ', '.join(logging.levels)));
+        } // end if
+    } // end if
+
+    return logging.levels[logging.levels.indexOf(level) - 1];
+}; // end nextLevelDown
 
 logging.nextLevelDown = function nextLevelDown(level)
 {
