@@ -125,7 +125,7 @@ logging.getLevelIdx = function getLevelIdx(level)
 {
     if(level === undefined)
     {
-        return undefined;
+        return -1;
     } // end if
 
     if(typeof level != 'string')
