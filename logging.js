@@ -121,8 +121,13 @@ logging.getLogger = function getLogger(name)
     return logger;
 }; // end getLogger
 
-logging.getLevel = function getLevel(level)
+logging.getLevelIdx = function getLevelIdx(level)
 {
+    if(level === undefined)
+    {
+        return undefined;
+    } // end if
+
     if(typeof level != 'string')
     {
         level = level.toString();
@@ -139,17 +144,22 @@ logging.getLevel = function getLevel(level)
         } // end if
     } // end if
 
-    return logging.levels[logging.levels.indexOf(level) - 1];
+    return idx;
+}; // end getLevelIdx
+
+logging.getLevel = function getLevel(level)
+{
+    return logging.levels[logging.getLevelIdx(level)];
 }; // end nextLevelDown
 
 logging.nextLevelDown = function nextLevelDown(level)
 {
-    return logging.levels[logging.levels.indexOf(level) - 1];
+    return logging.levels[logging.getLevelIdx(level) - 1];
 }; // end nextLevelDown
 
 logging.nextLevelUp = function nextLevelUp(level)
 {
-    return logging.levels[logging.levels.indexOf(level) + 1] || logging.levels[logging.levels.length - 1];
+    return logging.levels[logging.getLevelIdx(level) + 1] || logging.levels[logging.levels.length - 1];
 }; // end nextLevelUp
 
 // --------------------------------------------------------------------------------------------------------------------
