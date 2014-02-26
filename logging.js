@@ -127,7 +127,6 @@ logging.getLevel = function getLevel(level)
     {
         level = level.toString();
     } // end if
-    level = level;
 
     var idx = logging.levels.indexOf(level);
     if(idx < 0)
