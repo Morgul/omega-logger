@@ -27,12 +27,15 @@ var logging = module.exports = {
     namedLoggers: {}
 };
 
-var mainDir = '';
 try
 {
-    mainDir = path.dirname(require.main.filename);
+    logging._mainDir = path.dirname(require.main.filename);
 }
-catch(err) { } // Ignore exceptions. (which happen if you're requiring this from an interactive session)
+catch(err)
+{
+    // If you're requiring this from an interactive session, use the current working directory instead.
+    logging._mainDir = process.cwd();
+} // end try
 
 // --------------------------------------------------------------------------------------------------------------------
 
@@ -70,7 +73,7 @@ logging.loggerFor = function loggerFor(obj)
         filename = obj;
     } // end if
 
-    var loggerName = path.relative(mainDir, filename);
+    var loggerName = path.relative(logging._mainDir, filename);
 
     // If we weren't able to determine a logger name, use the root logger instead.
     return logging.getLogger(loggerName || 'root');
