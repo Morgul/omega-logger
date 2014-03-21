@@ -21,7 +21,7 @@ var logging = module.exports = {
     strFormat: require('./util/strformat').format,
     dump: function dump(object, depth)
     {
-        return new Dumper(object, depth);
+        return new logging.Dumper(object, depth);
     }, // end dump
     handlers: {},
     namedLoggers: {}
@@ -39,8 +39,8 @@ catch(err)
 
 // --------------------------------------------------------------------------------------------------------------------
 
-var Dumper = require('./lib/dumper').Dumper;
-var Logger = require('./lib/logger').Logger;
+logging.Dumper = require('./lib/dumper').Dumper;
+logging.Logger = require('./lib/logger').Logger;
 
 // Load all included handlers.
 require('./lib/handlers/console');
@@ -95,18 +95,18 @@ logging.getLogger = function getLogger(name)
     if(!logger)
     {
         // This logger doesn't exist; make a new one.
-        logger = new Logger(name);
+        logger = new logging.Logger(name);
         logging.namedLoggers[name] = logger;
 
         // Insert this logger's name into loggerNamesSorted.
-        var nameSortsAfterAll = Logger.loggerNamesSorted.every(
+        var nameSortsAfterAll = logging.Logger.loggerNamesSorted.every(
                 function eachLoggerName(loggerName, index)
                 {
                     if(name.length > loggerName.length)
                     {
                         // Insert new loggers before the first logger that has a longer name, so we don't have to
                         // re-sort the whole list. (yay insertion sort!)
-                        Logger.loggerNamesSorted.splice(index, 0, name);
+                        logging.Logger.loggerNamesSorted.splice(index, 0, name);
 
                         // Break out of our loop, since no subsequent logger could be our ancestor.
                         return false;
@@ -117,7 +117,7 @@ logging.getLogger = function getLogger(name)
 
         if(nameSortsAfterAll)
         {
-            Logger.loggerNamesSorted.push(name);
+            logging.Logger.loggerNamesSorted.push(name);
         } // end if
     } // end if
 
@@ -167,14 +167,14 @@ logging.nextLevelUp = function nextLevelUp(level)
 
 // --------------------------------------------------------------------------------------------------------------------
 
-Logger.loggerNamesSorted = ['root'];  // Logger names, sorted by ascending length.
+logging.Logger.loggerNamesSorted = ['root'];  // Logger names, sorted by ascending length.
 
 // Create default console log handler.
 var ConsoleHandler = logging.handlers.console;
 logging.defaultConsoleHandler = new ConsoleHandler();
 
 // Create root logger.
-logging.root = new Logger('root',
+logging.root = new logging.Logger('root',
         {
             propagate: false,
             handlers: [logging.defaultConsoleHandler]
