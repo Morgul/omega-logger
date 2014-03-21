@@ -143,7 +143,7 @@ logging.getLevelIdx = function getLevelIdx(level)
         if(idx < 0)
         {
             throw new Error(util.format("Unrecognized log level %j!\nAvailable levels: %s",
-                level, ', '.join(logging.levels)));
+                level, logging.levels.join(', ')));
         } // end if
     } // end if
 
