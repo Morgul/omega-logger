@@ -1,7 +1,7 @@
 // --------------------------------------------------------------------------------------------------------------------
-// Basic Python3-style String Formatting
+// Basic Python3-style String Formatting.
 //
-// @module strformat
+// @module util/strformat
 // --------------------------------------------------------------------------------------------------------------------
 
 var formatPattern = /\{([a-zA-Z0-9_]*)\}/g;
@@ -28,5 +28,5 @@ function format(formatString, context /*, positional args... */)
 //----------------------------------------------------------------------------------------------------------------------
 
 module.exports = {
-    'format': format
+    format: format
 };
