@@ -48,7 +48,7 @@ require('./lib/handlers/file');
 
 // --------------------------------------------------------------------------------------------------------------------
 
-logging.log = function log(/*level, message*/)
+logging.log = function log(/*level, message, ...*/)
 {
     var logger = logging.getLogger('root');
     logger.log.apply(logger, arguments);
