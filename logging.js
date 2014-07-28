@@ -173,6 +173,12 @@ logging.Logger.loggerNamesSorted = ['root'];  // Logger names, sorted by ascendi
 var ConsoleHandler = logging.handlers.console;
 logging.defaultConsoleHandler = new ConsoleHandler();
 
+// Set the default console log handler's level according to the environment.
+if(process.env.LOG_LEVEL)
+{
+    logging.defaultConsoleHandler.level = logging.getLevel(process.env.LOG_LEVEL);
+} // end if
+
 // Create root logger.
 logging.root = new logging.Logger('root',
         {
