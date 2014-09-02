@@ -12,7 +12,8 @@ if(!process.$_omega_logger)
 
     // ----------------------------------------------------------------------------------------------------------------
 
-    var logging = {
+    // Set the process-wide `$_omega_logger` property so we don't create the module multiple times.
+    var logging = module.exports = process.$_omega_logger = {
         levels: [
             'TRACE',
             'DEBUG',
@@ -189,10 +190,9 @@ if(!process.$_omega_logger)
                 handlers: [logging.defaultConsoleHandler]
             });
 
-    // ----------------------------------------------------------------------------------------------------------------
-
-    // Set the process-wide `$_omega_logger` property so we don't create the module multiple times.
-    process.$_omega_logger = logging;
+}
+else
+{
+    // omega-logger has already been initialized; just export the existing module.
+    module.exports = process.$_omega_logger;
 } // end if
-
-module.exports = process.$_omega_logger;
