@@ -25,7 +25,7 @@ function format(formatString, context /*, positional args... */)
     return formatString.replace(formatPattern, formatReplacement);
 } // end format
 
-//----------------------------------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------------------------
 
 module.exports = {
     format: format
