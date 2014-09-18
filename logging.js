@@ -5,67 +5,86 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 // Only create the main module object if it hasn't been created yet in this process.
-if(!process.$_omega_logger)
+if(process.$_omega_logger)
+{
+    // `omega-logger` has already been initialized; just export the existing module.
+    module.exports = process.$_omega_logger;
+    console.log("`omega-logger` has already been initialized; exporting the existing module.");
+}
+else
 {
     var path = require('path');
     var util = require('util');
 
     // ----------------------------------------------------------------------------------------------------------------
 
-    // Set the process-wide `$_omega_logger` property so we don't create the module multiple times.
-    var logging = module.exports = process.$_omega_logger = {
-        levels: [
-            'TRACE',
-            'DEBUG',
-            'INFO',
-            'WARN',
-            'ERROR',
-            'CRITICAL'
-            ],
-        strFormat: require('./util/strformat').format,
-        dump: function dump(object, depth)
-        {
-            return new logging.Dumper(object, depth);
-        }, // end dump
-        handlers: {},
-        namedLoggers: {}
-    };
-
+    var mainDir;
     try
     {
-        logging._mainDir = path.dirname(require.main.filename);
+        mainDir = path.dirname(require.main.filename);
     }
     catch(err)
     {
         // If you're requiring this from an interactive session, use the current working directory instead.
-        logging._mainDir = process.cwd();
+        mainDir = process.cwd();
     } // end try
 
-    // ----------------------------------------------------------------------------------------------------------------
+    // The main `logging` module.
+    var logging = module.exports = {
+    /**
+     * The list of registered logging levels.
+     *
+     * This is an **ordered list**; setting a logger or handler's `level` will cause any level occurring _before_
+     * it in this list to be **ignored** by that logger/handler.
+     *
+     * @default
+     */
+    levels: [
+        'TRACE',
+        'DEBUG',
+        'INFO',
+        'WARN',
+        'ERROR',
+        'CRITICAL'
+        ],
 
-    logging.Dumper = require('./lib/dumper').Dumper;
-    logging.Logger = require('./lib/logger').Logger;
+    handlers: {},
+    namedLoggers: {},
 
-    // Load all included handlers.
-    require('./lib/handlers/console');
-    require('./lib/handlers/file');
+    // ------------------------------------------------------------------------------------------------------------
+    // Functions
 
-    // ----------------------------------------------------------------------------------------------------------------
+    strFormat: require('./util/strformat').format,
 
-    logging.log = function log(/*level, message, ...*/)
+    /**
+     * Create a new Dumper; dump the structure of the given object in a readable fashion.
+     *
+     * @param {*} target - the object to dump
+     * @param {?number} depth - the maximum depth to display; specify `0` to show only _top-level_ properties, or
+     *          specify `-1` or `null` for unlimited depth
+     */
+    dump: function dump(target, depth)
+    {
+        return new logging.Dumper(target, depth);
+    }, // end dump
+
+    /**
+     * Log a message to the root logger.
+     */
+    log: function log(/*level, message, ...*/)
     {
         var logger = logging.getLogger('root');
         logger.log.apply(logger, arguments);
-    }; // end log
+    }, // end log
 
     /**
-     * Get a Logger for the given module or filename.
+     * Get or create a Logger for the given module or filename.
      *
-     * @param obj the module or filename to get a logger for
+     * @param {(Module|string)} obj - the module or filename to get a logger for
      *
      * @return {Logger} the Logger for the given module
      */
-    logging.loggerFor = function loggerFor(obj)
+    loggerFor: function loggerFor(obj)
     {
         var filename;
         if(typeof obj == 'object' && obj.constructor.name == 'Module')
@@ -81,14 +100,14 @@ if(!process.$_omega_logger)
 
         // If we weren't able to determine a logger name, use the root logger instead.
         return logging.getLogger(loggerName || 'root');
-    }; // end loggerFor
+    }, // end loggerFor
 
     /**
      * Get a Logger by name.
      *
      * @return {Logger} the Logger with the given name
      */
-    logging.getLogger = function getLogger(name)
+    getLogger: function getLogger(name)
     {
         if(!name)
         {
@@ -108,8 +127,8 @@ if(!process.$_omega_logger)
                     {
                         if(name.length > loggerName.length)
                         {
-                            // Insert new loggers before the first logger that has a longer name, so we don't have to
-                            // re-sort the whole list. (yay insertion sort!)
+                            // Insert new loggers before the first logger that has a longer name, so we don't have
+                            // to re-sort the whole list. (yay insertion sort!)
                             logging.Logger.loggerNamesSorted.splice(index, 0, name);
 
                             // Break out of our loop, since no subsequent logger could be our ancestor.
@@ -126,9 +145,17 @@ if(!process.$_omega_logger)
         } // end if
 
         return logger;
-    }; // end getLogger
+    }, // end getLogger
 
-    logging.getLevelIdx = function getLevelIdx(level)
+    /**
+     * Look up the index of a configured log level.
+     *
+     * An exact match will be attempted first, followed by matching against `level.toUpperCase()`.
+     *
+     * @param {string} level - the name of the level to look up
+     * @returns {number} the index of the matching level
+     */
+    getLevelIdx: function getLevelIdx(level)
     {
         if(level === undefined)
         {
@@ -146,28 +173,50 @@ if(!process.$_omega_logger)
             idx = logging.levels.indexOf(level.toUpperCase());
             if(idx < 0)
             {
-                throw new Error(util.format("Unrecognized log level %j!\nAvailable levels: %s",
-                    level, logging.levels.join(', ')));
+                var err = new Error(util.format("Unrecognized log level %j!", level));
+                err.hint = "Available levels: " + logging.levels.join(', ');
+                throw err;
             } // end if
         } // end if
 
         return idx;
-    }; // end getLevelIdx
+    }, // end getLevelIdx
 
-    logging.getLevel = function getLevel(level)
+    /**
+     * Look up the canonical name of a configured log level.
+     *
+     * An exact match will be attempted first, followed by matching against `level.toUpperCase()`.
+     *
+     * @param {string} level - the name of the level to look up
+     * @returns {string} the canonical name of the matching level
+     */
+    getLevel: function getLevel(level)
     {
         return logging.levels[logging.getLevelIdx(level)];
-    }; // end nextLevelDown
+    }, // end nextLevelDown
 
-    logging.nextLevelDown = function nextLevelDown(level)
+    nextLevelDown: function nextLevelDown(level)
     {
         return logging.levels[logging.getLevelIdx(level) - 1];
-    }; // end nextLevelDown
+    }, // end nextLevelDown
 
-    logging.nextLevelUp = function nextLevelUp(level)
+    nextLevelUp: function nextLevelUp(level)
     {
         return logging.levels[logging.getLevelIdx(level) + 1] || logging.levels[logging.levels.length - 1];
-    }; // end nextLevelUp
+    }, // end nextLevelUp
+
+    _mainDir: mainDir
+    };
+
+    // ----------------------------------------------------------------------------------------------------------------
+
+    // Load and attach Dumper and Logger.
+    logging.Dumper = require('./lib/dumper').Dumper;
+    logging.Logger = require('./lib/logger').Logger;
+
+    // Load all included handlers.
+    require('./lib/handlers/console');
+    require('./lib/handlers/file');
 
     // ----------------------------------------------------------------------------------------------------------------
 
@@ -183,16 +232,16 @@ if(!process.$_omega_logger)
         logging.defaultConsoleHandler.level = logging.getLevel(process.env.LOG_LEVEL);
     } // end if
 
-    // Create root logger.
-    logging.root = new logging.Logger('root',
-            {
-                propagate: false,
-                handlers: [logging.defaultConsoleHandler]
-            });
+    /**
+     * The root logger.
+     */
+    logging.root = new logging.Logger('root', {
+        propagate: false,
+        handlers: [logging.defaultConsoleHandler]
+    });
 
-}
-else
-{
-    // omega-logger has already been initialized; just export the existing module.
-    module.exports = process.$_omega_logger;
+    // ----------------------------------------------------------------------------------------------------------------
+
+    // Set the process-wide `$_omega_logger` property so we don't create the module multiple times.
+    process.$_omega_logger = logging;
 } // end if
