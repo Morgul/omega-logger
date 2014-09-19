@@ -46,7 +46,7 @@ else
             'WARN',
             'ERROR',
             'CRITICAL'
-            ],
+        ],
 
         handlers: {},
         namedLoggers: {},
@@ -54,7 +54,7 @@ else
         // ------------------------------------------------------------------------------------------------------------
         // Functions
 
-        strFormat: require('./util/strformat').format,
+        strFormat: require('./util/strformat'),
 
         /**
          * Create a new Dumper; dump the structure of the given object in a readable fashion.
