@@ -1,9 +1,9 @@
 // --------------------------------------------------------------------------------------------------------------------
-// Get the current call stack.
-//
-// Based on code from http://stackoverflow.com/a/13227808
-//
-// @module util/stack
+/// Get the current call stack.
+///
+/// Based on code from http://stackoverflow.com/a/13227808
+///
+/// @module
 // --------------------------------------------------------------------------------------------------------------------
 
 // Regular expression to match any module in this package
