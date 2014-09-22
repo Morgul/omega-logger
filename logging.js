@@ -211,19 +211,20 @@ else
     // ----------------------------------------------------------------------------------------------------------------
 
     // Load and attach Dumper and Logger.
-    logging.Dumper = require('./lib/dumper').Dumper;
-    logging.Logger = require('./lib/logger').Logger;
+    logging.Dumper = require('./lib/dumper');
+    logging.Logger = require('./lib/logger');
 
     // Load all included handlers.
-    require('./lib/handlers/console');
-    require('./lib/handlers/file');
+    logging.handlers.Base = require('./lib/handlers/base');
+    logging.handlers.Console = require('./lib/handlers/console');
+    logging.handlers.File = require('./lib/handlers/file');
 
     // ----------------------------------------------------------------------------------------------------------------
 
     logging.Logger.loggerNamesSorted = ['root'];  // Logger names, sorted by ascending length.
 
     // Create default console log handler.
-    var ConsoleHandler = logging.handlers.console;
+    var ConsoleHandler = logging.handlers.Console;
     logging.defaultConsoleHandler = new ConsoleHandler();
 
     // Set the default console log handler's level according to the environment.
