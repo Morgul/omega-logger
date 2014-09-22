@@ -120,28 +120,6 @@ else
                 // This logger doesn't exist; make a new one.
                 logger = new logging.Logger(name);
                 logging.namedLoggers[name] = logger;
-
-                // Insert this logger's name into loggerNamesSorted.
-                var nameSortsAfterAll = logging.Logger.loggerNamesSorted.every(
-                        function eachLoggerName(loggerName, index)
-                        {
-                            if(name.length > loggerName.length)
-                            {
-                                // Insert new loggers before the first logger that has a longer name, so we don't have
-                                // to re-sort the whole list. (yay insertion sort!)
-                                logging.Logger.loggerNamesSorted.splice(index, 0, name);
-
-                                // Break out of our loop, since no subsequent logger could be our ancestor.
-                                return false;
-                            } // end if
-
-                            return true;  // Keep looping over loggers.
-                        }); // end every
-
-                if(nameSortsAfterAll)
-                {
-                    logging.Logger.loggerNamesSorted.push(name);
-                } // end if
             } // end if
 
             return logger;
@@ -260,8 +238,6 @@ else
     logging.handlers.File = require('./lib/handlers/file');
 
     // ----------------------------------------------------------------------------------------------------------------
-
-    logging.Logger.loggerNamesSorted = ['root'];  // Logger names, sorted by ascending length.
 
     // Create default console log handler.
     var ConsoleHandler = logging.handlers.Console;
