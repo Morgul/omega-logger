@@ -245,15 +245,14 @@ else
 
     // ----------------------------------------------------------------------------------------------------------------
 
-    // Create default console log handler.
-    var ConsoleHandler = logging.handlers.Console;
-    logging.defaultConsoleHandler = new ConsoleHandler();
-
-    // Set the default console log handler's level according to the environment.
+    // Set the default level according to the environment.
+    var defaultLevelIdx;
     if(process.env.LOG_LEVEL)
     {
-        logging.defaultConsoleHandler.level = logging.getLevel(process.env.LOG_LEVEL);
+        defaultLevelIdx = logging.getLevelIdx(process.env.LOG_LEVEL);
     } // end if
+
+    logging.defaultConsoleHandler = new logging.handlers.Console({levelIdx: defaultLevelIdx});
 
     /**
      * The root logger.
