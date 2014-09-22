@@ -130,14 +130,20 @@ else
          *
          * An exact match will be attempted first, followed by matching against `level.toUpperCase()`.
          *
-         * @param {string} level - the name of the level to look up
-         * @returns {number} the index of the matching level
+         * @param {(string|number)} level - the name or index of the level to look up
+         * @returns {number} the index of the matching level, or `-1` if no matching level was found
          */
         getLevelIdx: function getLevelIdx(level)
         {
             if(level === undefined)
             {
                 return -1;
+            } // end if
+
+            if(typeof level == 'number')
+            {
+                // If the given index exists in the logging level list, return it; otherwise, return -1 for not found.
+                return (logging.levels[level] ? level : -1);
             } // end if
 
             if(typeof level != 'string')
@@ -165,8 +171,8 @@ else
          *
          * An exact match will be attempted first, followed by matching against `level.toUpperCase()`.
          *
-         * @param {string} level - the name of the level to look up
-         * @returns {string} the canonical name of the matching level
+         * @param {(string|number)} level - the name or index of the level to look up
+         * @returns {string} the canonical name of the matching level, or `undefined` if no matching level was found
          */
         getLevel: function getLevel(level)
         {
