@@ -32,10 +32,11 @@ else
     // The main `logging` module.
     var logging = module.exports = {
         /**
-         * The list of registered logging levels.
+         * The list of registered logging (severity) levels.
          *
-         * This is an **ordered list**; setting a logger or handler's `level` will cause any level occurring _before_
-         * it in this list to be **ignored** by that logger/handler.
+         * This is an **ordered list**; levels occurring _earlier_ in the list are considered _less severe_ than ones
+         * that follow. If a logger or handler's `level` is set to a given value, that logger or handler will then
+         * **ignore** any message with a less severe level.
          *
          * @default
          */
@@ -62,6 +63,8 @@ else
          * @param {*} target - the object to dump
          * @param {?number} depth - the maximum depth to display; specify `0` to show only _top-level_ properties, or
          *          specify `-1` or `null` for unlimited depth
+         *
+         * @returns {module:logging.Dumper} a new dumper which will dump `target` when converted to a string
          */
         dump: function dump(target, depth)
         {
@@ -179,11 +182,23 @@ else
             return logging.levels[logging.getLevelIdx(level)];
         }, // end nextLevelDown
 
+        /**
+         * Get the next logging level below (less severe than) the given one.
+         *
+         * @param {(string|number)} level - the name or index of the level to look up
+         * @returns {string} the name of the logging level directly below `level`
+         */
         nextLevelDown: function nextLevelDown(level)
         {
             return logging.levels[logging.getLevelIdx(level) - 1];
         }, // end nextLevelDown
 
+        /**
+         * Get the next logging level above (more severe than) the given one.
+         *
+         * @param {(string|number)} level - the name or index of the level to look up
+         * @returns {string} the name of the logging level directly above `level`
+         */
         nextLevelUp: function nextLevelUp(level)
         {
             return logging.levels[logging.getLevelIdx(level) + 1] || logging.levels[logging.levels.length - 1];
@@ -252,10 +267,19 @@ else
         defaultLevelIdx = logging.getLevelIdx(process.env.LOG_LEVEL);
     } // end if
 
+    /**
+     * The default console log handler.
+     *
+     * This handler is automatically configured at startup, and will set its level to
+     *
+     * @member {module:logging.handlers.Console} module:logging.defaultConsoleHandler
+     */
     logging.defaultConsoleHandler = new logging.handlers.Console({levelIdx: defaultLevelIdx});
 
     /**
      * The root logger.
+     *
+     * @member {module:logging.Logger} module:logging.root
      */
     logging.root = new logging.Logger('root', {
         propagate: false,
