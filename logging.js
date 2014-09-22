@@ -205,6 +205,46 @@ else
             return logging.levels[logging.getLevelIdx(level) + 1] || logging.levels[logging.levels.length - 1];
         }, // end nextLevelUp
 
+        /**
+         * Silence logging.
+         *
+         * @param {boolean} all - if truthy, _all_ log handlers will be silenced; otherwise, only _console_ handlers
+         *          will be silenced
+         */
+        silence: function silence(all)
+        {
+            if(all)
+            {
+                logging._silenceAll = true;
+            }
+            else
+            {
+                logging._silenceConsole = true;
+            } // end if
+        }, // end silence
+
+        /**
+         * Un-silence logging.
+         *
+         * If {@linkcode module:logging.silence} was called with a truthy value (silence _all_ log handlers), that flag
+         * will be cleared; otherwise, the flag to silence all _console_ handlers will be cleared.
+         *
+         * This means that if `silence` has been called both with and without a truthy value, the first call to
+         * `unsilence` will only un-silence **non-console** handlers; it would then have to be called a second time in
+         * order to unmute _all_ handlers.
+         */
+        unsilence: function unsilence()
+        {
+            if(logging._silenceAll)
+            {
+                logging._silenceAll = false;
+            }
+            else
+            {
+                logging._silenceConsole = false;
+            } // end if
+        }, // end unsilence
+
         _mainDir: mainDir
     };
 
