@@ -1,12 +1,12 @@
 // --------------------------------------------------------------------------------------------------------------------
-// Basic Python3-style String Formatting.
-//
-// @module util/strformat
+/// Basic Python3-style String Formatting.
+///
+/// @module
 // --------------------------------------------------------------------------------------------------------------------
 
 var formatPattern = /\{([a-zA-Z0-9_]*)\}/g;
 
-function format(formatString, context /*, positional args... */)
+function strFormat(formatString, context /*, positional args... */)
 {
     var positional = Array.prototype.slice.call(arguments, 2);
 
@@ -23,10 +23,8 @@ function format(formatString, context /*, positional args... */)
     } // end formatReplacement
 
     return formatString.replace(formatPattern, formatReplacement);
-} // end format
+} // end strFormat
 
-//----------------------------------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------------------------
 
-module.exports = {
-    format: format
-};
+module.exports = strFormat;

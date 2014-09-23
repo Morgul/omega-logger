@@ -52,7 +52,7 @@ logging.root.level = 'DEBUG';
 
 Note that this does _not_ change the logging level of any of the handlers; instead, you would have to configure the
 handler directly. (for instance, if you want to change what levels of messages are printed to the console, you would
-need to set the level of the ConsoleHandler; see below)
+need to set the level of the Console handler; see below)
 
 See the [`Logger`](#logger) documentation below for more information about the properties and methods available.
 
@@ -64,20 +64,17 @@ a file. They can be configured similarly to loggers:
 
 ```javascript
 var logging = require('omega-logger');
-var ConsoleHandler = logging.handlers.console;
-
-var logger = logging.loggerFor(module);
 
 logging.root.handlers = [
-	new ConsoleHandler()
+	new logging.handlers.Console()
 ];
 ```
 
-Each handler has its own `level` setting, similar to loggers:
+Each handler has its own `level` setting, similar to loggers, which tells the handler to ignore certain messages:
 
 ```javascript
 logging.root.handlers = [
-	new ConsoleHandler({
+	new logging.handlers.Console({
 		// Only display messages on this handler if they're at the 'WARN' level or above.
 		level: 'WARN'
 	})
@@ -188,7 +185,7 @@ easy string formatting using `logging.strFormat(formatString, context /*, positi
 
 ### Available Handlers ###
 
-#### `logging.handlers.console`
+#### `logging.handlers.Console`
 The default console logger; provides [ANSI-colored](https://en.wikipedia.org/wiki/ANSI_escape_sequence) log
 output to the console.
 
@@ -202,7 +199,7 @@ output to the console.
    `{TRACE: '1;30', DEBUG: '37', INFO: '32', WARN: '33', ERROR: '31', CRITICAL: '1;31'}`)
 
 
-#### `logging.handlers.file`
+#### `logging.handlers.File`
 A handler that can write to a file. You can set the following properties to change its behavior:
 
 ##### Properties:
