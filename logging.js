@@ -261,10 +261,10 @@ else
     // ----------------------------------------------------------------------------------------------------------------
 
     // Set the default level according to the environment.
-    var defaultLevelIdx;
+    var defaultLevel = 'INFO';
     if(process.env.LOG_LEVEL)
     {
-        defaultLevelIdx = logging.getLevelIdx(process.env.LOG_LEVEL);
+        defaultLevel = process.env.LOG_LEVEL;
     } // end if
 
     /**
@@ -274,7 +274,7 @@ else
      *
      * @member {module:logging.handlers.Console} module:logging.defaultConsoleHandler
      */
-    logging.defaultConsoleHandler = new logging.handlers.Console({levelIdx: defaultLevelIdx});
+    logging.defaultConsoleHandler = new logging.handlers.Console({level: defaultLevel});
 
     /**
      * The root logger.
