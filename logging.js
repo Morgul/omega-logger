@@ -276,15 +276,18 @@ else
      */
     logging.defaultConsoleHandler = new logging.handlers.Console({level: defaultLevel});
 
-    /**
-     * The root logger.
-     *
-     * @member {module:logging.Logger} module:logging.root
-     */
-    logging.root = new logging.Logger('root', {
+    var rootLogger = new logging.Logger('root', {
         propagate: false,
         handlers: [logging.defaultConsoleHandler]
     });
+    /**
+     * The root logger.
+     *
+     * This is a read-only property.
+     *
+     * @member {module:logging.Logger} module:logging.root
+     */
+    Object.defineProperty(this, 'root', {value: rootLogger, configurable: false, enumerable: true, writable: false});
 
     // ----------------------------------------------------------------------------------------------------------------
 
