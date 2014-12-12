@@ -285,7 +285,7 @@ else
      *
      * @member {module:logging.Logger} module:logging.root
      */
-    Object.defineProperty(this, 'root', {value: rootLogger, configurable: false, enumerable: true, writable: false});
+    Object.defineProperty(logging, 'root', {value: rootLogger, configurable: false, enumerable: true, writable: false});
 
     // ----------------------------------------------------------------------------------------------------------------
 
