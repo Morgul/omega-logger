@@ -280,6 +280,7 @@ else
         propagate: false,
         handlers: [logging.defaultConsoleHandler]
     });
+
     /**
      * The root logger.
      *
