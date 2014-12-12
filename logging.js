@@ -112,10 +112,7 @@ else
          */
         getLogger: function getLogger(name)
         {
-            if(!name)
-            {
-                return logging.root;
-            } // end if
+            name = name || 'root';
 
             var logger = logging.namedLoggers[name];
             if(!logger)
