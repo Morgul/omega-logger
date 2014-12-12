@@ -273,10 +273,11 @@ else
      */
     logging.defaultConsoleHandler = new logging.handlers.Console({level: defaultLevel});
 
-    var rootLogger = new logging.Logger('root', {
-        propagate: false,
-        handlers: [logging.defaultConsoleHandler]
-    });
+    var rootLogger = logging.getLogger('root')
+        .configure({
+            propagate: false,
+            handlers: [logging.defaultConsoleHandler]
+        });
 
     /**
      * The root logger.
