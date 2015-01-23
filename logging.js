@@ -112,10 +112,7 @@ else
          */
         getLogger: function getLogger(name)
         {
-            if(!name)
-            {
-                return logging.root;
-            } // end if
+            name = name || 'root';
 
             var logger = logging.namedLoggers[name];
             if(!logger)
@@ -276,15 +273,20 @@ else
      */
     logging.defaultConsoleHandler = new logging.handlers.Console({level: defaultLevel});
 
+    var rootLogger = logging.getLogger('root')
+        .configure({
+            propagate: false,
+            handlers: [logging.defaultConsoleHandler]
+        });
+
     /**
      * The root logger.
      *
+     * This is a read-only property.
+     *
      * @member {module:logging.Logger} module:logging.root
      */
-    logging.root = new logging.Logger('root', {
-        propagate: false,
-        handlers: [logging.defaultConsoleHandler]
-    });
+    Object.defineProperty(logging, 'root', {value: rootLogger, configurable: false, enumerable: true, writable: false});
 
     // ----------------------------------------------------------------------------------------------------------------
 
