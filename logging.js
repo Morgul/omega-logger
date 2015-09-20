@@ -61,14 +61,16 @@ else
          * Create a new Dumper; dump the structure of the given object in a readable fashion.
          *
          * @param {*} target - the object to dump
-         * @param {?number} depth - the maximum depth to display; specify `0` to show only _top-level_ properties, or
-         *          specify `-1` or `null` for unlimited depth
+         * @param {(number|object)} [depthOrOptions] - the maximum depth to display, or an options object for
+         *          `util.inspect()`; specify `0` to show only _top-level_ properties, or specify `-1` or `null` for
+         *          unlimited depth
+         * @param {string} [depthOrOptions.indent=''] - the indentation to add to the beginning of each line
          *
          * @returns {module:logging.Dumper} a new dumper which will dump `target` when converted to a string
          */
-        dump: function dump(target, depth)
+        dump: function dump(target, depthOrOptions)
         {
-            return new logging.Dumper(target, depth);
+            return new logging.Dumper(target, depthOrOptions);
         }, // end dump
 
         /**
