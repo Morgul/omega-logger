@@ -94,6 +94,32 @@ Each logger can have its own collection of handlers, though typically only the `
 handlers. (see the `Logger` documentation below)
 
 
+### Environment Variables ###
+
+`omega-logger` recognizes several environment variables automatically, to simplify changing its behavior on the fly:
+
+- `LOG_LEVEL`: If present, sets the logging level of the root handler. (see above)
+- `LOG_MSG_DATA`: If present, this is parsed as a [JSON][] object, and its properties are added to all emitted log
+  messages. This is especially useful in conjunction with `LOG_AS_JSON` (see below), since any properties set here will
+  appear in _each line_ of the JSON output.
+
+There are also some variables that are only processed by certain handlers:
+
+- `LOG_AS_JSON` _(`console` handler only)_: If enabled, output log messages as [JSON][], one line per message, similar
+  to [bunyan][]. (this is useful when using a log-shipping system like [Logstash][], since pretty much everything can
+  parse JSON)
+- `LOG_PREFIX` _(`console` handler only)_: If present, and `LOG_AS_JSON` is not enabled, all logged messages will be
+  prefixed with the given string.
+- `DEBUG` _(`console` handler only)_: If enabled, and `LOG_AS_JSON` is not enabled, also display the filename, line
+  number, and column of the call that generated each message.
+
+Boolean variables listed above recognize the (case-insensitive) values `off`, `no`, `false`, `0`, `disabled`, and an
+empty string as falsy (disabled) values; any other value will cause the variable to be **enabled**.
+
+[JSON]: http://json.org/
+[bunyan]: https://www.npmjs.com/package/bunyan
+[Logstash]: https://www.elastic.co/products/logstash
+
 
 ## The `omega-logger` Module
 
