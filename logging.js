@@ -110,7 +110,9 @@ else
         /**
          * Get a Logger by name.
          *
-         * @return {Logger} the Logger with the given name
+         * @param {string} [name='root'] - the name of the logger to get or create
+         *
+         * @returns {Logger} the Logger with the given name
          */
         getLogger: function getLogger(name)
         {
