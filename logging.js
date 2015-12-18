@@ -50,7 +50,7 @@ else
         ],
 
         handlers: {},
-        namedLoggers: {},
+        namedLoggers: new WeakMap(),
 
         // ------------------------------------------------------------------------------------------------------------
         // Functions
@@ -118,15 +118,17 @@ else
         {
             name = name || 'root';
 
-            var logger = logging.namedLoggers[name];
-            if(!logger)
+            if(logging.namedLoggers.has(name))
+            {
+                return logging.namedLoggers.get(name);
+            }
+            else
             {
                 // This logger doesn't exist; make a new one.
-                logger = new logging.Logger(name);
-                logging.namedLoggers[name] = logger;
+                var logger = new logging.Logger(name);
+                logging.namedLoggers.set(name, logger);
+                return logger;
             } // end if
-
-            return logger;
         }, // end getLogger
 
         /**
