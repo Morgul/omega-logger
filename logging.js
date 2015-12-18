@@ -16,6 +16,8 @@ else
     var path = require('path');
     var util = require('util');
 
+    var weak = require('weak');
+
     // ----------------------------------------------------------------------------------------------------------------
 
     var mainDir;
@@ -28,6 +30,15 @@ else
         // If you're requiring this from an interactive session, use the current working directory instead.
         mainDir = process.cwd();
     } // end try
+
+    /**
+     * Helper to remove a logger from `logging.namedLoggers` when its weak reference dies.
+     * @private
+     */
+    function _removeLogger(name)
+    {
+        delete logging.namedLoggers[name];
+    } // end _removeLogger
 
     // The main `logging` module.
     var logging = module.exports = {
@@ -50,7 +61,7 @@ else
         ],
 
         handlers: {},
-        namedLoggers: new WeakMap(),
+        namedLoggers: {},
 
         // ------------------------------------------------------------------------------------------------------------
         // Functions
@@ -118,15 +129,16 @@ else
         {
             name = name || 'root';
 
-            if(logging.namedLoggers.has(name))
+            var loggerRef = logging.namedLoggers[name];
+            if(weak.isWeakRef(loggerRef) && !weak.isDead(loggerRef))
             {
-                return logging.namedLoggers.get(name);
+                return weak.get(loggerRef);
             }
             else
             {
                 // This logger doesn't exist; make a new one.
                 var logger = new logging.Logger(name);
-                logging.namedLoggers.set(name, logger);
+                logging.namedLoggers[name] = weak(logger, _removeLogger.bind(null, name));
                 return logger;
             } // end if
         }, // end getLogger

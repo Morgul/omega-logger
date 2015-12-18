@@ -2,7 +2,9 @@
   "name": "omega-logger",
   "version": "0.7.0",
   "description": "A simple, yet powerful logging system for omega-node.",
-  "dependencies": {},
+  "dependencies": {
+    "weak": "^1.0.0"
+  },
   "engines": {
     "node": ">=0.12"
   },
