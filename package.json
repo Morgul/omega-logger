@@ -3,6 +3,9 @@
   "version": "0.6.7",
   "description": "A simple, yet powerful logging system for omega-node.",
   "dependencies": {},
+  "engines": {
+    "node": ">=0.12"
+  },
   "main": "logging.js",
   "scripts": {
     "test": "mocha"
