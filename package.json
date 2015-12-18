@@ -1,6 +1,6 @@
 {
   "name": "omega-logger",
-  "version": "0.6.7",
+  "version": "0.7.0",
   "description": "A simple, yet powerful logging system for omega-node.",
   "dependencies": {},
   "engines": {
