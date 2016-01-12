@@ -242,6 +242,22 @@ A handler that can write to a file. You can set the following properties to chan
    use if creating a new log file (default: `0660`)
 
 
+## Troubleshooting ##
+
+### Installation on MS Windows
+
+If your installation fails with a message like this:
+
+`C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\Microsoft.Cpp.InvalidPlatform.Targets(23,7): error MSB8007: The
+Platform for project 'weakref.vcxproj' is invalid.  Platform='x64'. You may be seeing this message because you are
+trying to build a project without a solution file, and have specified a non-default Platform that doesn't exist for
+this project. [C:\MyProject\node_modules\omega-logger\node_modules\weak\build\weakref.vcxproj]`
+
+...chances are, the version of Microsoft Visual C++ that [node-gyp](https://github.com/nodejs/node-gyp) has found isn't
+capable of building things that will work with your version of Node.js. See the `node-gyp` installation instructions at
+<https://github.com/nodejs/node-gyp#installation> for more information.
+
+
 ## TODO ##
 
 See [the issue list on GitHub](https://github.com/Morgul/omega-logger/issues).
